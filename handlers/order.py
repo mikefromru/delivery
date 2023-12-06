@@ -1,5 +1,5 @@
 import logging
-from aiogram import Router, html, F
+from aiogram import Router, html, F, Bot
 from aiogram.filters import Command 
 from aiogram.types import Message
 from typing import Any, Dict
@@ -11,7 +11,7 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
-
+import os
 import fpdf
 
 order_router = Router()
@@ -33,7 +33,7 @@ async def cmd_delivery(message: Message, state: FSMContext) -> None:
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text="Отменить"),
+                    KeyboardButton(text='Отменить составление накладной'),
                 ]
             ],
             resize_keyboard=True,
@@ -43,8 +43,8 @@ async def cmd_delivery(message: Message, state: FSMContext) -> None:
 
 
 @order_router.message(Command("cancel"))
-@order_router.message(F.text.casefold() == "отменить")
-async def cancel_handler(message: Message, state: FSMContext) -> None:
+@order_router.message(F.text.casefold() == 'отменить составление накладной')
+async def cancel_handler(message: Message, bot: Bot, state: FSMContext) -> None:
     """
     Allow user to cancel any action
     """
@@ -53,7 +53,19 @@ async def cancel_handler(message: Message, state: FSMContext) -> None:
         return
 
     logging.info("Cancelling state %r", current_state)
+    print('order.py')
+    data = await state.get_data()
+    
+    text = 'Была отмена составления накладной\n' 
+    text += f'Описание груза - {data.get("description")}\n'
+    text += f'Вес - {data.get("weight")}\n'
+    text += f'Габариты груза - {data.get("size")}\n'
+    text += f'Место отправления - {data.get("from_address")}\n'
+    text += f'Место назначения - {data.get("to_address")}\n'
+    text += f'Способ оплаты - {data.get("method_pay")}\n'
+    
     await state.clear()
+    await bot.send_message(chat_id=os.getenv('MANAGER'), text=text) # send to manager
     await message.answer(
         'Отмена.',
         reply_markup=ReplyKeyboardRemove(),

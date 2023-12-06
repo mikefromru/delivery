@@ -31,7 +31,7 @@ async def cmd_complaint(message: Message, state: FSMContext) -> None:
         reply_markup=ReplyKeyboardMarkup(
             keyboard=[
                 [
-                    KeyboardButton(text='Отменить'),
+                    KeyboardButton(text='Отменить жалабу'),
                 ]
             ],
             resize_keyboard=True,
@@ -41,17 +41,18 @@ async def cmd_complaint(message: Message, state: FSMContext) -> None:
 
 
 @complaint_router.message(Command("cancel"))
-@complaint_router.message(F.text.casefold() == 'отменить')
-async def complaint_cancel_handler(message: Message, state: FSMContext) -> None:
+@complaint_router.message(F.text.casefold() == 'отменить жалабу')
+async def complaint_cancel_handler(message: Message, bot: Bot, state: FSMContext) -> None:
     """
     Allow user to cancel any action
     """
     current_state = await state.get_state()
     if current_state is None:
         return
-
+    print('complaint.py')
     logging.info("Cancelling state %r", current_state)
     await state.clear()
+    await bot.send_message(chat_id=os.getenv('MANAGER'), text='Была отменена жалоба') # send to manager
     await message.answer(
         'Отмена.',
         reply_markup=ReplyKeyboardRemove(),
