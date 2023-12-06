@@ -1,5 +1,5 @@
 import logging
-from aiogram import Router, html, F
+from aiogram import Router, html, F, Bot
 from aiogram.filters import Command 
 from aiogram.types import Message
 from typing import Any, Dict
@@ -11,7 +11,7 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
-
+import os
 
 complaint_router = Router()
 
@@ -87,24 +87,24 @@ async def complaint_process_money(message: Message, state: FSMContext) -> None:
 
 
 @complaint_router.message(FormComplaint.photo)
-async def complaint_process_photo(message: Message, state: FSMContext) -> None:
+async def complaint_process_photo(message: Message, bot: Bot, state: FSMContext) -> None:
     data = await state.update_data(photo=message.text)
     await state.clear()
-    await show_summary(message=message, data=data)
 
-
-async def show_summary(message: Message, data: Dict[str, Any], positive: bool = True) -> None:
     number = data.get('number')
     email = data.get('email')
     description = data.get('description')
     money = data.get('money')
     photo = data.get('photo')
 
-    text = f'Номер накладной: {html.bold(number)}\n'
+    text = html.bold('Претензия!\n')
+    text += f'Номер накладной: {html.bold(number)}\n'
     text += f'Email: {html.bold(email)}\n'
     text += f'Описание претензии: {html.bold(description)}\n'
     text += f'Требуемая сумма: {html.bold(money)}\n'
     text += f'Фото/сканы: {html.bold(photo)}\n'
+
+    await bot.send_message(chat_id=os.getenv('MANAGER'), text=text) # send to manager
 
     await message.answer(text=text)
     await message.answer(text='Ваша жалоба будет рассмотрена в ближайшее время!')
