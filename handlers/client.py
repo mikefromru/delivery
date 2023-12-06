@@ -15,6 +15,7 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
+import fpdf
 
 client = Router()
 
@@ -23,8 +24,8 @@ class Form(StatesGroup):
     description = State()
     weight = State()
     size = State()
-    from_adress = State()
-    to_adress = State()
+    from_address = State()
+    to_address = State()
     method_pay = State()
 
 
@@ -42,6 +43,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         ),
 
     )
+
 
 @client.message(Command("cancel"))
 @client.message(F.text.casefold() == "cancel")
@@ -78,27 +80,27 @@ async def process_name(message: Message, state: FSMContext) -> None:
 @client.message(Form.size)
 async def process_name(message: Message, state: FSMContext) -> None:
     await state.update_data(size=message.text)
-    await state.set_state(Form.from_adress)
-    await message.answer('type the from adress')
+    await state.set_state(Form.from_address)
+    await message.answer('type the from address')
 
 
-@client.message(Form.from_adress)
+@client.message(Form.from_address)
 async def process_name(message: Message, state: FSMContext) -> None:
-    data = await state.update_data(from_adress=message.text)
-    await state.set_state(Form.to_adress)
-    await message.answer('type the to adress')
+    data = await state.update_data(from_address=message.text)
+    await state.set_state(Form.to_address)
+    await message.answer('type the to address')
 
 
-@client.message(Form.to_adress)
+@client.message(Form.to_address)
 async def process_name(message: Message, state: FSMContext) -> None:
-    data = await state.update_data(to_adress=message.text)
+    data = await state.update_data(to_address=message.text)
     await state.set_state(Form.method_pay)
     await message.answer('type the method pay')
 
 
 @client.message(Form.method_pay)
 async def process_name(message: Message, state: FSMContext) -> None:
-    data = await state.update_data(method_py=message.text)
+    data = await state.update_data(method_pay=message.text)
     await state.clear()
     await show_summary(message=message, data=data)
 
@@ -107,15 +109,46 @@ async def show_summary(message: Message, data: Dict[str, Any], positive: bool = 
     description = data.get('description')
     weight = data.get('weight')
     size = data.get('size')
-    from_adress = data.get('from_adress')
-    to_adress = data.get('to_adress')
+    from_address = data.get('from_address')
+    to_address = data.get('to_address')
     method_pay = data.get('method_pay')
 
     text = f'Description is {html.bold(description)}\n'
     text += f'Weight is {html.bold(weight)}\n'
     text += f'Size is {html.bold(size)}\n'
-    text += f'Delivery from {html.bold(from_adress)}\n'
-    text += f'Delivery to {html.bold(to_adress)}\n'
+    text += f'Delivery from {html.bold(from_address)}\n'
+    text += f'Delivery to {html.bold(to_address)}\n'
     text += f'Method to pay is {html.bold(method_pay)}'
 
     await message.answer(text=text)
+    write_pdf(description, weight, size, from_address, to_address, method_pay)
+
+def write_pdf(description, weight, size, from_address, to_address, method_pay):
+    import os
+    pdf = fpdf.FPDF(format='letter') #pdf format
+    pdf.add_page() #create new page
+    path = os.path.abspath('handlers/OpenSans-Bold.ttf')
+    # pdf.add_font('DejaVu', '', 'DejaVuSansCondensed.ttf', uni=True)
+    pdf.add_font('OpenSans', '', path, uni=True)
+    pdf.set_font('OpenSans', size=12) # font and textsize
+    pdf.cell(200, 10, txt='Документ', ln=1, align='T')
+    pdf.cell(200, 10, txt=f'Описание груза - {description}', ln=2, align='L')
+    pdf.cell(200, 10, txt=f'Вес груза - {weight}', ln=2, align='L')
+    pdf.cell(200, 10, txt=f'Габариты груза - {size}', ln=2, align='L')
+    pdf.cell(200, 10, txt=f'Точный адрес отправки - {from_address}', ln=2, align='L')
+    pdf.cell(200, 10, txt=f'Точный адрес получения - {to_address}', ln=2, align='L')
+    pdf.cell(200, 10, txt=f'Способ оплаты - {method_pay}', ln=3, align='L')
+    pdf.output('Накладная.pdf')
+
+
+# def write_pdf(description, weight, size, from_address, to_address):
+#     pdf = fpdf.FPDF(format='letter') #pdf format
+#     pdf.add_page() #create new page
+#     pdf.set_font("Arial", size=12) # font and textsize
+#     pdf.cell(200, 10, txt='Накладная', ln=1, align='R')
+#     pdf.cell(200, 10, txt=f'Описание груза\n{description}', ln=2, align='L')
+#     pdf.cell(200, 10, txt=f'Вес груза - {weight}', ln=2, align='L')
+#     pdf.cell(200, 10, txt=f'Габариты груза - {size}', ln=2, align='L')
+#     pdf.cell(200, 10, txt=f'Адрес отправки - {from_address}', ln=2, align='L')
+#     pdf.cell(200, 10, txt=f'Адрес получателя - {to_address}', ln=3, align='L')
+#     pdf.output('nacladnay.pdf')
