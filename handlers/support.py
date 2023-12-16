@@ -7,6 +7,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.exceptions import TelegramAPIError
 
+import os
+
 # from bot.config_reader import config
 
 from aiogram.types import (
@@ -15,7 +17,6 @@ from aiogram.types import (
     ReplyKeyboardMarkup,
     ReplyKeyboardRemove,
 )
-import os
 
 
 support_router = Router()
