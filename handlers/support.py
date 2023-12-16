@@ -9,7 +9,6 @@ from aiogram.exceptions import TelegramAPIError
 
 import os
 
-# from bot.config_reader import config
 
 from aiogram.types import (
     KeyboardButton,
