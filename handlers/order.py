@@ -45,9 +45,6 @@ async def cmd_delivery(message: Message, state: FSMContext) -> None:
 @order_router.message(Command("cancel"))
 @order_router.message(F.text.casefold() == 'отменить составление накладной')
 async def cancel_handler(message: Message, bot: Bot, state: FSMContext) -> None:
-    """
-    Allow user to cancel any action
-    """
     current_state = await state.get_state()
     if current_state is None:
         return
