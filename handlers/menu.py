@@ -12,6 +12,7 @@ desc_message = '''
 Оформите груз и мы позаботимся о его целостности и доставим в указанный срок!
 '''
 
+
 @menu.message(Command('start'))
 async def cmd_start(message: Message):
     await message.reply('Start command')
