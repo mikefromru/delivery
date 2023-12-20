@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 
-from handlers import menu, order, complaint, support
+from handlers import menu, order, complaint
 
 load_dotenv()
 
@@ -20,7 +20,6 @@ async def main() -> None:
         menu.menu, 
         order.order_router,
         complaint.complaint_router,
-        support.support_router,
     )
     await dp.start_polling(bot, drop_pending_update=False)
 
