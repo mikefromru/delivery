@@ -1,11 +1,7 @@
-## Deliveery
+## Delivery
 
-Delivery это проект для заказа доставки грузов. ,
-AngularJS-powered HTML5 Markdown editor.
-
-- Type some Markdown on the left
-- See HTML in the right
-- ✨Magic ✨
+Delivery это Telebram bot для заказа доставки грузов. Клиент описывает характеристики груза. Затем сохраняется PDF файл с введеными характеристика. 
+Клиент может отправить жалабу менеджеру если возникают проблемы с доставкой груза.
 
 ## Функции
 
@@ -53,12 +49,13 @@ python main.py
 
 Delivery очень легко учстановить и развернуть в Docker container.
 
-By default, the Docker will expose port 8080, so change this within the
-Dockerfile if necessary. When ready, simply use the Dockerfile to
-build the image.
-
 ```sh
-cd dillinger
+cd deliver
 docker build -t <youruser>/delivery:${package.json.version} .
 ```
 
+## Как использовать
+Команды для взаимодействия с ботом
+- `/delivery` - Оформить доставку
+- `/complain` - Написать жалобу
+- `/description` - Описание
